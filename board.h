@@ -28,9 +28,9 @@ int board_put_coin(int x, int *y, CoinBelonging c);
 
 // 游戏状态
 typedef enum {
-    Won, // 赢了
-    Lost, // 输了
-    NotYet, // 尚未结束
+    Won,  // 赢了
+    Lost,  // 输了
+    NotYet,  // 尚未结束
 } GameStatus;
 
 // 检查游戏状态
