@@ -11,6 +11,11 @@ void board_init(void) {
     for (int i = 0; i < GRID_VERTICAL_COUNT; ++i) {
         for (int j = 0; j < GRID_HORIZONTAL_COUNT; ++j) {
             board[i][j] = None;
+            gui_draw_circle(
+                (j + 0.5) * (int)GRID_SIZE,
+                (i + 1.5) * (int)GRID_SIZE,
+                COIN_SIZE,
+                BLACK);
         }
     }
 }
@@ -79,18 +84,38 @@ void board_draw(void) {
     for (int i = 0; i < GRID_VERTICAL_COUNT; ++i) {
         for (int j = 0; j < GRID_HORIZONTAL_COUNT; ++j) {
             int color;
-            if (board[i][j] == Mine) {
-                color = RED;
-            } else if (board[i][j] == Oppo) {
-                color = YELLOW;
-            } else {
-                color = BLACK;
+#ifdef USING_SDL
+            switch (board[i][j]) {
+                case Mine:
+                    color = RED;
+                case Oppo:
+                    color = YELLOW;
+                default:
+                    color = BLACK;
+                    break;
             }
             gui_draw_circle(
                 (j + 0.5) * (int)GRID_SIZE,
                 (i + 1.5) * (int)GRID_SIZE,
                 COIN_SIZE,
                 color);
+#else
+            if (board[i][j] == None) {
+                color = BLACK;
+                gui_draw_circle(
+                    (j + 0.5) * (int)GRID_SIZE,
+                    (i + 1.5) * (int)GRID_SIZE,
+                    COIN_SIZE,
+                    color);
+            } else {
+                fb_image *img = board[i][j] == Mine ? red_coin : yellow_coin;
+                gui_draw_image(
+                    j * (int)GRID_SIZE,
+                    (i + 1) * (int)GRID_SIZE,
+                    img,
+                    0);
+            }
+#endif
         }
     }
 }

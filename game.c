@@ -37,12 +37,17 @@ static void sock_event(int fd) {
     board_draw();
     gui_update();
     turn = !turn;
+    fb_image *img;
     if (game_status != NotYet) {
         if (game_status == Won) {
+            img = win;
             puts("Won!");
         } else {
+            img = lose;
             puts("Lost!");
         }
+        gui_draw_image(0, 0, img, 0);
+        gui_update();
         exit(0);
     }
 }
@@ -50,7 +55,7 @@ static void sock_event(int fd) {
 static void touch_event(int fd) {
     int type, x, _y, finger;
     CoinBelonging c = turn == YourTurn ? Mine : Oppo;
-    int color = c == Mine ? RED : YELLOW;
+    fb_image *img = c == Mine ? red_coin : yellow_coin;
     int y;
     type = touch_read(fd, &x, &_y, &finger);
     if (mode != Hotseat && turn == NotYourTurn) {
@@ -67,15 +72,14 @@ static void touch_event(int fd) {
             if (x >= 0 && x < 7 * GRID_SIZE) {
                 column_to_put = x / GRID_SIZE;
             }
-            if (x < 0.5 * (int)GRID_SIZE) {
-                unput_coin = 0.5 * (int)GRID_SIZE;
-            } else if (x > 6.5 * (int)GRID_SIZE) {
-                unput_coin = 6.5 * (int)GRID_SIZE;
-            } else {
-                unput_coin = x;
+            unput_coin = x - 0.5 * (int)GRID_SIZE;
+            if (unput_coin < 0) {
+                unput_coin = 0;
+            } else if (unput_coin > 6 * (int)GRID_SIZE) {
+                unput_coin = 6 * (int)GRID_SIZE;
             }
             gui_draw_rect(0, 0, 7 * GRID_SIZE, GRID_SIZE, BLACK);
-            gui_draw_circle(unput_coin, GRID_SIZE / 2, COIN_SIZE, color);
+            gui_draw_image(unput_coin, 0, img, 0);
             break;
         case TOUCH_RELEASE:
             if (board_put_coin(column_to_put, &y, c) != 0) {
@@ -92,11 +96,16 @@ static void touch_event(int fd) {
     }
     gui_update();
     if (game_status != NotYet) {
+        fb_image *img;
         if (game_status == Won) {
+            img = win;
             puts("Won!");
         } else {
+            img = lose;
             puts("Lost!");
         }
+        gui_draw_image(0, 0, img, 0);
+        gui_update();
         exit(0);
     }
     return;
