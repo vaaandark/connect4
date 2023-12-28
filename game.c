@@ -15,6 +15,7 @@
 GameMode mode;
 Turn turn = YourTurn;
 
+bool wait_to_start = true;
 bool to_restart = false;
 
 int sock_fd;
@@ -90,6 +91,27 @@ static void touch_event(int fd) {
     fb_image *img = c == Mine ? red_coin : yellow_coin;
     int y;
     type = touch_read(fd, &x, &_y, &finger);
+    if (wait_to_start) {
+        if (type == TOUCH_RELEASE) {
+            gui_draw_rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BLACK);
+            gui_draw_rect(
+                0,
+                GRID_SIZE,
+                SCREEN_HEIGHT,
+                SCREEN_HEIGHT - GRID_SIZE,
+                BLUE);
+            board_init();
+            board_draw();
+    #ifndef USING_SDL
+            gui_draw_image(SCREEN_HEIGHT, 0, sidebar, 0);
+            show_turn();
+            show_score();
+    #endif
+            gui_update();
+            wait_to_start = false;
+        }
+        return;
+    }
     if (to_restart) {
         if (type == TOUCH_RELEASE) {
             gui_draw_rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BLACK);
@@ -181,15 +203,7 @@ void game_init(GameMode game_mode, char *ip, char *port) {
     }
     mode = game_mode;
     gui_init();
-    gui_draw_rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BLACK);
-    gui_draw_rect(0, GRID_SIZE, SCREEN_HEIGHT, SCREEN_HEIGHT - GRID_SIZE, BLUE);
-    board_init();
-    board_draw();
-#ifndef USING_SDL
-    gui_draw_image(SCREEN_HEIGHT, 0, sidebar, 0);
-    show_turn();
-    show_score();
-#endif
+    gui_draw_image(0, 0, start, 0);
     gui_update();
 }
 
