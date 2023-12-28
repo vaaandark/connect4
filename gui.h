@@ -8,6 +8,9 @@ extern fb_image *win;
 extern fb_image *lose;
 extern fb_image *red_coin;
 extern fb_image *yellow_coin;
+extern fb_image *sidebar;
+extern fb_image *red_arrow;
+extern fb_image *yellow_arrow;
 #endif
 
 void gui_init(void);

@@ -12,6 +12,9 @@ fb_image *win;
 fb_image *lose;
 fb_image *red_coin;
 fb_image *yellow_coin;
+fb_image *sidebar;
+fb_image *red_arrow;
+fb_image *yellow_arrow;
 #endif
 
 void gui_init(void) {
@@ -24,6 +27,9 @@ void gui_init(void) {
     lose = fb_read_png_image("images/lose.png");
     red_coin = fb_read_png_image("images/redcoin85px.png");
     yellow_coin = fb_read_png_image("images/yellowcoin85px.png");
+    sidebar = fb_read_png_image("images/sidebar.png");
+    red_arrow = fb_read_png_image("images/redarrow.png");
+    yellow_arrow = fb_read_png_image("images/yellowarrow.png");
 #endif
 }
 

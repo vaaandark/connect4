@@ -15,6 +15,8 @@
 GameMode mode;
 Turn turn = YourTurn;
 
+bool to_restart = false;
+
 int sock_fd;
 
 bool quit = false;
@@ -26,7 +28,21 @@ int touch_fd;
 #endif
 
 #ifndef USING_SDL
+static void show_turn(void) {
+    gui_draw_rect(SCREEN_HEIGHT, 130, 50, 150, BLACK);
+    if (turn == YourTurn) {
+        gui_draw_image(SCREEN_HEIGHT, 130, red_arrow, 0);
+    } else {
+        gui_draw_image(SCREEN_HEIGHT, 200, yellow_arrow, 0);
+    }
+}
+#endif
+
+#ifndef USING_SDL
 static void sock_event(int fd) {
+    if (to_restart) {
+        return;
+    }
     int y;
     recv_data(sock_fd, &column_to_put, sizeof(int));
     if (turn == YourTurn) {
@@ -35,8 +51,9 @@ static void sock_event(int fd) {
     board_put_coin(column_to_put, &y, Oppo);
     game_status = board_check_game_status(column_to_put, y);
     board_draw();
-    gui_update();
     turn = !turn;
+    show_turn();
+    gui_update();
     fb_image *img;
     if (game_status != NotYet) {
         if (game_status == Won) {
@@ -48,7 +65,8 @@ static void sock_event(int fd) {
         }
         gui_draw_image(0, 0, img, 0);
         gui_update();
-        exit(0);
+        to_restart = true;
+        game_status = NotYet;
     }
 }
 
@@ -58,6 +76,23 @@ static void touch_event(int fd) {
     fb_image *img = c == Mine ? red_coin : yellow_coin;
     int y;
     type = touch_read(fd, &x, &_y, &finger);
+    if (to_restart) {
+        if (type == TOUCH_RELEASE) {
+            gui_draw_rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BLACK);
+            gui_draw_rect(
+                0,
+                GRID_SIZE,
+                SCREEN_HEIGHT,
+                SCREEN_HEIGHT - GRID_SIZE,
+                BLUE);
+            board_init();
+            gui_draw_image(SCREEN_HEIGHT, 0, sidebar, 0);
+            show_turn();
+            gui_update();
+            to_restart = false;
+        }
+        return;
+    }
     if (mode != Hotseat && turn == NotYourTurn) {
         return;
     }
@@ -90,6 +125,7 @@ static void touch_event(int fd) {
             board_draw();
             gui_draw_rect(0, 0, 7 * GRID_SIZE, GRID_SIZE, BLACK);
             turn = !turn;
+            show_turn();
             break;
         default:
             return;
@@ -106,7 +142,8 @@ static void touch_event(int fd) {
         }
         gui_draw_image(0, 0, img, 0);
         gui_update();
-        exit(0);
+        to_restart = true;
+        game_status = NotYet;
     }
     return;
 }
@@ -131,6 +168,10 @@ void game_init(GameMode game_mode, char *ip, char *port) {
     gui_draw_rect(0, GRID_SIZE, SCREEN_HEIGHT, SCREEN_HEIGHT - GRID_SIZE, BLUE);
     board_init();
     board_draw();
+#ifndef USING_SDL
+    gui_draw_image(SCREEN_HEIGHT, 0, sidebar, 0);
+    show_turn();
+#endif
     gui_update();
 }
 
