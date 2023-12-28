@@ -10,7 +10,7 @@ endif
 
 LDLIBS := -ljpeg -lfreetype -lpng -lz -lc -lm
 
-SRC := common/graphic.c common/touch.c common/image.c common/task.c gui.c board.c main.c
+SRC := common/graphic.c common/touch.c common/image.c common/task.c gui.c board.c game.c comm.c main.c
 
 ifdef simulate
 	CFLAGS+=-DUSING_SDL
