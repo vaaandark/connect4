@@ -19,6 +19,9 @@ bool to_restart = false;
 
 int sock_fd;
 
+int win_cnt = 0;
+int lose_cnt = 0;
+
 bool quit = false;
 int unput_coin;
 int column_to_put = 0;
@@ -35,6 +38,15 @@ static void show_turn(void) {
     } else {
         gui_draw_image(SCREEN_HEIGHT, 200, yellow_arrow, 0);
     }
+}
+
+static void show_score(void) {
+    gui_draw_rect(SCREEN_HEIGHT + 200, 130, 50, 125, BLACK);
+    char buff[5];
+    sprintf(buff, "%d", win_cnt);
+    fb_draw_text(SCREEN_HEIGHT + 200, 180, buff, 48, RED);
+    sprintf(buff, "%d", lose_cnt);
+    fb_draw_text(SCREEN_HEIGHT + 200, 248, buff, 48, YELLOW);
 }
 #endif
 
@@ -58,9 +70,11 @@ static void sock_event(int fd) {
     if (game_status != NotYet) {
         if (game_status == Won) {
             img = win;
+            win_cnt += 1;
             puts("Won!");
         } else {
             img = lose;
+            lose_cnt += 1;
             puts("Lost!");
         }
         gui_draw_image(0, 0, img, 0);
@@ -88,6 +102,7 @@ static void touch_event(int fd) {
             board_init();
             gui_draw_image(SCREEN_HEIGHT, 0, sidebar, 0);
             show_turn();
+            show_score();
             gui_update();
             to_restart = false;
         }
@@ -135,9 +150,11 @@ static void touch_event(int fd) {
         fb_image *img;
         if (game_status == Won) {
             img = win;
+            win_cnt += 1;
             puts("Won!");
         } else {
             img = lose;
+            lose_cnt += 1;
             puts("Lost!");
         }
         gui_draw_image(0, 0, img, 0);
@@ -171,6 +188,7 @@ void game_init(GameMode game_mode, char *ip, char *port) {
 #ifndef USING_SDL
     gui_draw_image(SCREEN_HEIGHT, 0, sidebar, 0);
     show_turn();
+    show_score();
 #endif
     gui_update();
 }

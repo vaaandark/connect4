@@ -30,6 +30,7 @@ void gui_init(void) {
     sidebar = fb_read_png_image("images/sidebar.png");
     red_arrow = fb_read_png_image("images/redarrow.png");
     yellow_arrow = fb_read_png_image("images/yellowarrow.png");
+    font_init("fonts/font.ttc");
 #endif
 }
 
