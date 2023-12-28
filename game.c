@@ -53,7 +53,7 @@ static void touch_event(int fd) {
     int color = c == Mine ? RED : YELLOW;
     int y;
     type = touch_read(fd, &x, &_y, &finger);
-    if (turn == NotYourTurn) {
+    if (mode != Hotseat && turn == NotYourTurn) {
         return;
     }
     if (type == TOUCH_ERROR) {
@@ -131,7 +131,7 @@ void game_loop() {
     int x, y;
     while (!quit) {
         CoinBelonging c = turn == YourTurn ? Mine : Oppo;
-        if (turn == NotYourTurn) {
+        if (mode != Hotseat && turn == NotYourTurn) {
             recv_data(sock_fd, &column_to_put, sizeof(int));
             board_put_coin(column_to_put, &y, c);
             game_status = board_check_game_status(column_to_put, y);
