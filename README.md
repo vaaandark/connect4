@@ -45,3 +45,8 @@ $ ./connect host {HOST_PORT}
 ```console
 $ ./connect guest {HOST_IP} {HOST_PORT}
 ```
+
+## 效果
+
+![demo](./images/demo.gif)
+
